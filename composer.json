@@ -24,7 +24,8 @@
     "tourze/biz-user-bundle": "0.0.*",
     "tourze/bundle-dependency": "0.0.*",
     "tourze/json-rpc-lock-bundle": "0.1.*",
-    "tourze/symfony-cron-job-bundle": "0.1.*"
+    "tourze/symfony-cron-job-bundle": "0.1.*",
+    "tourze/ddns-contracts": "0.0.*"
   },
   "require-dev": {
     "phpstan/phpstan": "^2.1",
