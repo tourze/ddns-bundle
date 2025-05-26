@@ -6,3 +6,7 @@ services:
 
   DDNSBundle\Command\:
     resource: '../../Command/'
+  DDNSBundle\EventListener\:
+    resource: '../../EventListener/'
+  DDNSBundle\Service\:
+    resource: '../../Service/'
