@@ -24,10 +24,10 @@ class DDNSAttributeProcessorTest extends TestCase
     {
         $entity = new class {
             #[DDNSDomain]
-            private string $domain = 'example.com';
+            public string $domain = 'example.com';
 
             #[DDNSIP]
-            private string $ip = '192.168.1.1';
+            public string $ip = '192.168.1.1';
         };
 
         $results = $this->processor->extractResolveResults($entity);
@@ -44,8 +44,8 @@ class DDNSAttributeProcessorTest extends TestCase
     public function testExtractResolveResultsFromEntityWithoutAttributes(): void
     {
         $entity = new class {
-            private string $domain = 'example.com';
-            private string $ip = '192.168.1.1';
+            public string $domain = 'example.com';
+            public string $ip = '192.168.1.1';
         };
 
         $results = $this->processor->extractResolveResults($entity);
@@ -60,10 +60,10 @@ class DDNSAttributeProcessorTest extends TestCase
     {
         $entity = new class {
             #[DDNSDomain]
-            private string $domain = '';
+            public string $domain = '';
 
             #[DDNSIP]
-            private string $ip = '192.168.1.1';
+            public string $ip = '192.168.1.1';
         };
 
         $results = $this->processor->extractResolveResults($entity);
@@ -78,11 +78,11 @@ class DDNSAttributeProcessorTest extends TestCase
     {
         $entityWithAttributes = new class {
             #[DDNSDomain]
-            private string $domain = 'example.com';
+            public string $domain = 'example.com';
         };
 
         $entityWithoutAttributes = new class {
-            private string $domain = 'example.com';
+            public string $domain = 'example.com';
         };
 
         $this->assertTrue($this->processor->hasAnyDDNSAttribute($entityWithAttributes));
@@ -96,16 +96,16 @@ class DDNSAttributeProcessorTest extends TestCase
     {
         $entity = new class {
             #[DDNSDomain]
-            private string $domain1 = 'example1.com';
+            public string $domain1 = 'example1.com';
 
             #[DDNSDomain]
-            private string $domain2 = 'example2.com';
+            public string $domain2 = 'example2.com';
 
             #[DDNSIP]
-            private string $ip1 = '192.168.1.1';
+            public string $ip1 = '192.168.1.1';
 
             #[DDNSIP]
-            private string $ip2 = '192.168.1.2';
+            public string $ip2 = '192.168.1.2';
         };
 
         $results = $this->processor->extractResolveResults($entity);

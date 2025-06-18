@@ -13,7 +13,7 @@ use Tourze\DDNSContracts\IPResolverInterface;
 use Tourze\Symfony\CronJob\Attribute\AsCronTask;
 
 #[AsCronTask('* * * * *')]
-#[AsCommand(name: ProviderRunCommand::NAME)]
+#[AsCommand(name: ProviderRunCommand::NAME, description: '运行DDNS提供商更新任务')]
 class ProviderRunCommand extends Command
 {
     public const NAME = 'ddns:provider:run';
@@ -45,8 +45,6 @@ class ProviderRunCommand extends Command
 
     private function resolveDNS(DNSProviderInterface $dnsProvider, ExpectResolveResult $result): void
     {
-        assert($dnsProvider instanceof DNSProviderInterface);
-
         if ($dnsProvider->check($result)) {
             $dnsProvider->resolve($result);
         }

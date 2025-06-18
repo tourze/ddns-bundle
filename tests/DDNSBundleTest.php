@@ -16,8 +16,6 @@ class DDNSBundleTest extends TestCase
     public function testGetBundleDependencies(): void
     {
         $dependencies = DDNSBundle::getBundleDependencies();
-        
-        $this->assertIsArray($dependencies);
         $this->assertArrayHasKey(JsonRPCLockBundle::class, $dependencies);
         $this->assertArrayHasKey(AccessTokenBundle::class, $dependencies);
         $this->assertArrayHasKey(BizUserBundle::class, $dependencies);
