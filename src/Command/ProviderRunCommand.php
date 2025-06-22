@@ -13,7 +13,7 @@ use Tourze\DDNSContracts\IPResolverInterface;
 use Tourze\Symfony\CronJob\Attribute\AsCronTask;
 
 #[AsCronTask('* * * * *')]
-#[AsCommand(name: ProviderRunCommand::NAME, description: '运行DDNS提供商更新任务')]
+#[AsCommand(name: self::NAME, description: '运行DDNS提供商更新任务')]
 class ProviderRunCommand extends Command
 {
     public const NAME = 'ddns:provider:run';
