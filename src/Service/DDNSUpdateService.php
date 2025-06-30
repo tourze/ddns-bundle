@@ -13,7 +13,7 @@ use Tourze\DDNSContracts\ExpectResolveResult;
 class DDNSUpdateService
 {
     public function __construct(
-        #[TaggedIterator(DNSProviderInterface::TAG_NAME)] private readonly iterable $dnsProviders,
+        #[TaggedIterator(tag: DNSProviderInterface::TAG_NAME)] private readonly iterable $dnsProviders,
     ) {
     }
 

@@ -12,15 +12,15 @@ use Tourze\DDNSContracts\ExpectResolveResult;
 use Tourze\DDNSContracts\IPResolverInterface;
 use Tourze\Symfony\CronJob\Attribute\AsCronTask;
 
-#[AsCronTask('* * * * *')]
+#[AsCronTask(expression: '* * * * *')]
 #[AsCommand(name: self::NAME, description: '运行DDNS提供商更新任务')]
 class ProviderRunCommand extends Command
 {
     public const NAME = 'ddns:provider:run';
 
     public function __construct(
-        #[TaggedIterator(IPResolverInterface::TAG_NAME)] private readonly iterable  $ipResolvers,
-        #[TaggedIterator(DNSProviderInterface::TAG_NAME)] private readonly iterable $dnsProviders,
+        #[TaggedIterator(tag: IPResolverInterface::TAG_NAME)] private readonly iterable  $ipResolvers,
+        #[TaggedIterator(tag: DNSProviderInterface::TAG_NAME)] private readonly iterable $dnsProviders,
     ) {
         parent::__construct();
     }
