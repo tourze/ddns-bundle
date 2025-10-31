@@ -10,7 +10,7 @@
 <?php
 
 use DDNSBundle\Attribute\DDNSDomain;
-use DDNSBundle\Attribute\DDNSIP;
+use DDNSBundle\Attribute\DdnsIp;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -27,11 +27,11 @@ class ServerNode
     private string $hostname;
 
     #[ORM\Column(type: 'string', length: 45)]
-    #[DDNSIP(provider: 'cloudflare')]
+    #[DdnsIp(provider: 'cloudflare')]
     private string $publicIp;
 
     #[ORM\Column(type: 'string', length: 45, nullable: true)]
-    #[DDNSIP(provider: 'cloudflare')]
+    #[DdnsIp(provider: 'cloudflare')]
     private ?string $backupIp = null;
 
     // 当更新服务器IP时，会自动触发DDNS更新
@@ -51,7 +51,7 @@ class ServerNode
 <?php
 
 use DDNSBundle\Attribute\DDNSDomain;
-use DDNSBundle\Attribute\DDNSIP;
+use DDNSBundle\Attribute\DdnsIp;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -62,7 +62,7 @@ class CDNNode
     private string $subdomain; // 如: cdn1.example.com
 
     #[ORM\Column(type: 'string')]
-    #[DDNSIP]
+    #[DdnsIp]
     private string $nodeIp;
 
     #[ORM\Column(type: 'string')]
@@ -84,7 +84,7 @@ class CDNNode
 <?php
 
 use DDNSBundle\Attribute\DDNSDomain;
-use DDNSBundle\Attribute\DDNSIP;
+use DDNSBundle\Attribute\DdnsIp;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -102,12 +102,12 @@ class LoadBalancer
 
     // 主IP
     #[ORM\Column(type: 'string')]
-    #[DDNSIP(provider: 'cloudflare')]
+    #[DdnsIp(provider: 'cloudflare')]
     private string $primaryIp;
 
     // 备用IP
     #[ORM\Column(type: 'string')]
-    #[DDNSIP(provider: 'cloudflare')]
+    #[DdnsIp(provider: 'cloudflare')]
     private string $backupIp;
 
     // 这会创建4个DNS解析记录：

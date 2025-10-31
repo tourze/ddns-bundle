@@ -6,6 +6,9 @@ services:
 
   DDNSBundle\Command\:
     resource: '../../Command/'
+  DDNSBundle\Controller\:
+    resource: '../../Controller/'
+    tags: ['controller.service_arguments']
   DDNSBundle\EventListener\:
     resource: '../../EventListener/'
   DDNSBundle\Service\:

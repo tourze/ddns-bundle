@@ -3,17 +3,23 @@
 namespace DDNSBundle\Tests\Service;
 
 use DDNSBundle\Attribute\DDNSDomain;
-use DDNSBundle\Attribute\DDNSIP;
+use DDNSBundle\Attribute\DdnsIp;
 use DDNSBundle\Service\DDNSAttributeProcessor;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Tourze\DDNSContracts\ExpectResolveResult;
+use Tourze\DDNSContracts\DTO\ExpectResolveResult;
 
-class DDNSAttributeProcessorTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(DDNSAttributeProcessor::class)]
+final class DDNSAttributeProcessorTest extends TestCase
 {
     private DDNSAttributeProcessor $processor;
 
     protected function setUp(): void
     {
+        parent::setUp();
         $this->processor = new DDNSAttributeProcessor();
     }
 
@@ -26,7 +32,7 @@ class DDNSAttributeProcessorTest extends TestCase
             #[DDNSDomain]
             public string $domain = 'example.com';
 
-            #[DDNSIP]
+            #[DdnsIp]
             public string $ip = '192.168.1.1';
         };
 
@@ -45,6 +51,7 @@ class DDNSAttributeProcessorTest extends TestCase
     {
         $entity = new class {
             public string $domain = 'example.com';
+
             public string $ip = '192.168.1.1';
         };
 
@@ -62,7 +69,7 @@ class DDNSAttributeProcessorTest extends TestCase
             #[DDNSDomain]
             public string $domain = '';
 
-            #[DDNSIP]
+            #[DdnsIp]
             public string $ip = '192.168.1.1';
         };
 
@@ -101,10 +108,10 @@ class DDNSAttributeProcessorTest extends TestCase
             #[DDNSDomain]
             public string $domain2 = 'example2.com';
 
-            #[DDNSIP]
+            #[DdnsIp]
             public string $ip1 = '192.168.1.1';
 
-            #[DDNSIP]
+            #[DdnsIp]
             public string $ip2 = '192.168.1.2';
         };
 

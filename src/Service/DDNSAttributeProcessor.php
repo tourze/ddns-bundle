@@ -1,12 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DDNSBundle\Service;
 
 use DDNSBundle\Attribute\DDNSDomain;
-use DDNSBundle\Attribute\DDNSIP;
-use ReflectionClass;
-use ReflectionProperty;
-use Tourze\DDNSContracts\ExpectResolveResult;
+use DDNSBundle\Attribute\DdnsIp;
+use Tourze\DDNSContracts\DTO\ExpectResolveResult;
 
 /**
  * DDNS属性处理器
@@ -16,25 +16,27 @@ class DDNSAttributeProcessor
 {
     /**
      * 从实体中提取DDNS解析结果
+     *
+     * @return ExpectResolveResult[]
      */
     public function extractResolveResults(object $entity): array
     {
-        $reflectionClass = new ReflectionClass($entity);
+        $reflectionClass = new \ReflectionClass($entity);
         $domainFields = $this->findFieldsWithAttribute($reflectionClass, DDNSDomain::class);
-        $ipFields = $this->findFieldsWithAttribute($reflectionClass, DDNSIP::class);
+        $ipFields = $this->findFieldsWithAttribute($reflectionClass, DdnsIp::class);
 
         $results = [];
 
         // 为每个域名字段和IP字段的组合创建解析结果
         foreach ($domainFields as $domainField) {
             $domainValue = $this->getPropertyValue($entity, $domainField);
-            if (empty($domainValue)) {
+            if ('' === $domainValue || null === $domainValue || !is_string($domainValue)) {
                 continue;
             }
 
             foreach ($ipFields as $ipField) {
                 $ipValue = $this->getPropertyValue($entity, $ipField);
-                if (empty($ipValue)) {
+                if ('' === $ipValue || null === $ipValue || !is_string($ipValue)) {
                     continue;
                 }
 
@@ -47,14 +49,18 @@ class DDNSAttributeProcessor
 
     /**
      * 查找具有指定属性的字段
+     *
+     * @param \ReflectionClass<object> $reflectionClass
+     *
+     * @return \ReflectionProperty[]
      */
-    private function findFieldsWithAttribute(ReflectionClass $reflectionClass, string $attributeClass): array
+    private function findFieldsWithAttribute(\ReflectionClass $reflectionClass, string $attributeClass): array
     {
         $fields = [];
 
         foreach ($reflectionClass->getProperties() as $property) {
             $attributes = $property->getAttributes($attributeClass);
-            if (!empty($attributes)) {
+            if ([] !== $attributes) {
                 $fields[] = $property;
             }
         }
@@ -65,9 +71,10 @@ class DDNSAttributeProcessor
     /**
      * 获取属性值
      */
-    private function getPropertyValue(object $entity, ReflectionProperty $property): mixed
+    private function getPropertyValue(object $entity, \ReflectionProperty $property): mixed
     {
         $property->setAccessible(true);
+
         return $property->getValue($entity);
     }
 
@@ -76,13 +83,13 @@ class DDNSAttributeProcessor
      */
     public function hasAnyDDNSAttribute(object $entity): bool
     {
-        $reflectionClass = new ReflectionClass($entity);
+        $reflectionClass = new \ReflectionClass($entity);
 
         foreach ($reflectionClass->getProperties() as $property) {
             $domainAttributes = $property->getAttributes(DDNSDomain::class);
-            $ipAttributes = $property->getAttributes(DDNSIP::class);
+            $ipAttributes = $property->getAttributes(DdnsIp::class);
 
-            if (!empty($domainAttributes) || !empty($ipAttributes)) {
+            if ([] !== $domainAttributes || [] !== $ipAttributes) {
                 return true;
             }
         }

@@ -2,18 +2,23 @@
 
 namespace DDNSBundle\Service;
 
-use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 use Tourze\DDNSContracts\DNSProviderInterface;
-use Tourze\DDNSContracts\ExpectResolveResult;
+use Tourze\DDNSContracts\DTO\ExpectResolveResult;
 
 /**
  * DDNS更新服务
  * 负责调用DNS提供者更新解析
  */
-class DDNSUpdateService
+#[Autoconfigure(public: true)]
+readonly class DDNSUpdateService
 {
+    /**
+     * @param iterable<DNSProviderInterface> $dnsProviders
+     */
     public function __construct(
-        #[TaggedIterator(tag: DNSProviderInterface::TAG_NAME)] private readonly iterable $dnsProviders,
+        #[AutowireIterator(tag: DNSProviderInterface::TAG_NAME)] private iterable $dnsProviders,
     ) {
     }
 

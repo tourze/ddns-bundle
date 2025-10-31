@@ -1,24 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DDNSBundle\Tests;
 
-use AccessTokenBundle\AccessTokenBundle;
 use DDNSBundle\DDNSBundle;
-use PHPUnit\Framework\TestCase;
-use Tourze\JsonRPCLockBundle\JsonRPCLockBundle;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+use Tourze\PHPUnitSymfonyKernelTest\AbstractBundleTestCase;
 
-class DDNSBundleTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(DDNSBundle::class)]
+#[RunTestsInSeparateProcesses]
+final class DDNSBundleTest extends AbstractBundleTestCase
 {
-    /**
-     * 测试 getBundleDependencies 方法返回正确的依赖数组
-     */
-    public function testGetBundleDependencies(): void
-    {
-        $dependencies = DDNSBundle::getBundleDependencies();
-        $this->assertArrayHasKey(JsonRPCLockBundle::class, $dependencies);
-        $this->assertArrayHasKey(AccessTokenBundle::class, $dependencies);
-
-        $this->assertEquals(['all' => true], $dependencies[JsonRPCLockBundle::class]);
-        $this->assertEquals(['all' => true], $dependencies[AccessTokenBundle::class]);
-    }
 }

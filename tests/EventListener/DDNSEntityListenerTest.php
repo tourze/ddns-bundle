@@ -3,30 +3,62 @@
 namespace DDNSBundle\Tests\EventListener;
 
 use DDNSBundle\Attribute\DDNSDomain;
-use DDNSBundle\Attribute\DDNSIP;
+use DDNSBundle\Attribute\DdnsIp;
 use DDNSBundle\EventListener\DDNSEntityListener;
 use DDNSBundle\Service\DDNSAttributeProcessor;
 use DDNSBundle\Service\DDNSUpdateService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\PostPersistEventArgs;
 use Doctrine\ORM\Event\PostUpdateEventArgs;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
-use Tourze\DDNSContracts\ExpectResolveResult;
+use Tourze\DDNSContracts\DTO\ExpectResolveResult;
+use Tourze\PHPUnitSymfonyKernelTest\AbstractIntegrationTestCase;
 
-class DDNSEntityListenerTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(DDNSEntityListener::class)]
+#[RunTestsInSeparateProcesses]
+final class DDNSEntityListenerTest extends AbstractIntegrationTestCase
 {
     private DDNSAttributeProcessor&MockObject $attributeProcessor;
+
     private DDNSUpdateService&MockObject $ddnsUpdateService;
-    private EntityManagerInterface&MockObject $entityManager;
+
     private DDNSEntityListener $listener;
 
-    protected function setUp(): void
+    protected function onSetUp(): void
     {
+        $this->setUpMocks();
+    }
+
+    private function setUpMocks(): void
+    {
+        // 使用具体类 DDNSAttributeProcessor 是必要的，因为：
+        // 1. 该类是核心业务逻辑处理器，没有对应的接口定义
+        // 2. Mock主要为了隔离测试，专注于事件监听器的逻辑验证
+        // 3. 实际项目中该服务作为具体实现被直接注入使用
         $this->attributeProcessor = $this->createMock(DDNSAttributeProcessor::class);
+
+        // 使用具体类 DDNSUpdateService 是必要的，因为：
+        // 1. 该类是DDNS更新的核心服务，没有对应的接口抽象
+        // 2. Mock目的是验证事件监听器调用服务的行为逻辑
+        // 3. 测试重点是事件处理流程而非服务的具体实现细节
         $this->ddnsUpdateService = $this->createMock(DDNSUpdateService::class);
-        $this->entityManager = $this->createMock(EntityManagerInterface::class);
-        $this->listener = new DDNSEntityListener($this->attributeProcessor, $this->ddnsUpdateService);
+
+        // 将 Mock 服务注册到容器中
+        $container = self::getContainer();
+        $container->set(DDNSAttributeProcessor::class, $this->attributeProcessor);
+        $container->set(DDNSUpdateService::class, $this->ddnsUpdateService);
+
+        // 从容器中获取监听器实例
+        $listener = $container->get(DDNSEntityListener::class);
+        if (!$listener instanceof DDNSEntityListener) {
+            throw new \RuntimeException('Expected DDNSEntityListener instance');
+        }
+        $this->listener = $listener;
     }
 
     /**
@@ -38,30 +70,37 @@ class DDNSEntityListenerTest extends TestCase
             #[DDNSDomain]
             public string $domain = 'example.com';
 
-            #[DDNSIP]
+            #[DdnsIp]
             public string $ip = '192.168.1.1';
         };
 
+        // 使用具体类 ExpectResolveResult 是必要的，因为：
+        // 1. 这是DDNS合约中的标准DTO，没有对应的接口
+        // 2. 该类主要用于数据传输，Mock主要为了避免依赖外部数据
+        // 3. 测试重点是事件监听器逻辑而非DTO的具体实现
         $resolveResult = $this->createMock(ExpectResolveResult::class);
 
         $this->attributeProcessor
             ->expects($this->once())
             ->method('hasAnyDDNSAttribute')
             ->with($entity)
-            ->willReturn(true);
+            ->willReturn(true)
+        ;
 
         $this->attributeProcessor
             ->expects($this->once())
             ->method('extractResolveResults')
             ->with($entity)
-            ->willReturn([$resolveResult]);
+            ->willReturn([$resolveResult])
+        ;
 
         $this->ddnsUpdateService
             ->expects($this->once())
             ->method('updateDNS')
-            ->with($resolveResult);
+            ->with($resolveResult)
+        ;
 
-        $event = new PostPersistEventArgs($entity, $this->entityManager);
+        $event = new PostPersistEventArgs($entity, $this->createMock(EntityManagerInterface::class));
 
         $this->listener->postPersist($event);
     }
@@ -73,6 +112,7 @@ class DDNSEntityListenerTest extends TestCase
     {
         $entity = new class {
             public string $domain = 'example.com';
+
             public string $ip = '192.168.1.1';
         };
 
@@ -80,17 +120,20 @@ class DDNSEntityListenerTest extends TestCase
             ->expects($this->once())
             ->method('hasAnyDDNSAttribute')
             ->with($entity)
-            ->willReturn(false);
+            ->willReturn(false)
+        ;
 
         $this->attributeProcessor
             ->expects($this->never())
-            ->method('extractResolveResults');
+            ->method('extractResolveResults')
+        ;
 
         $this->ddnsUpdateService
             ->expects($this->never())
-            ->method('updateDNS');
+            ->method('updateDNS')
+        ;
 
-        $event = new PostPersistEventArgs($entity, $this->entityManager);
+        $event = new PostPersistEventArgs($entity, $this->createMock(EntityManagerInterface::class));
 
         $this->listener->postPersist($event);
     }
@@ -104,30 +147,37 @@ class DDNSEntityListenerTest extends TestCase
             #[DDNSDomain]
             public string $domain = 'example.com';
 
-            #[DDNSIP]
+            #[DdnsIp]
             public string $ip = '192.168.1.1';
         };
 
+        // 使用具体类 ExpectResolveResult 是必要的，因为：
+        // 1. 这是DDNS合约中的标准DTO，没有对应的接口
+        // 2. 该类主要用于数据传输，Mock主要为了避免依赖外部数据
+        // 3. 测试重点是事件监听器逻辑而非DTO的具体实现
         $resolveResult = $this->createMock(ExpectResolveResult::class);
 
         $this->attributeProcessor
             ->expects($this->once())
             ->method('hasAnyDDNSAttribute')
             ->with($entity)
-            ->willReturn(true);
+            ->willReturn(true)
+        ;
 
         $this->attributeProcessor
             ->expects($this->once())
             ->method('extractResolveResults')
             ->with($entity)
-            ->willReturn([$resolveResult]);
+            ->willReturn([$resolveResult])
+        ;
 
         $this->ddnsUpdateService
             ->expects($this->once())
             ->method('updateDNS')
-            ->with($resolveResult);
+            ->with($resolveResult)
+        ;
 
-        $event = new PostUpdateEventArgs($entity, $this->entityManager);
+        $event = new PostUpdateEventArgs($entity, $this->createMock(EntityManagerInterface::class));
 
         $this->listener->postUpdate($event);
     }
@@ -144,33 +194,45 @@ class DDNSEntityListenerTest extends TestCase
             #[DDNSDomain]
             public string $domain2 = 'example2.com';
 
-            #[DDNSIP]
+            #[DdnsIp]
             public string $ip = '192.168.1.1';
         };
 
+        // 使用具体类 ExpectResolveResult 是必要的，因为：
+        // 1. 这是DDNS合约中的标准DTO，没有对应的接口
+        // 2. 该类主要用于数据传输，Mock主要为了避免依赖外部数据
+        // 3. 测试重点是事件监听器逻辑而非DTO的具体实现
         $resolveResult1 = $this->createMock(ExpectResolveResult::class);
+
+        // 使用具体类 ExpectResolveResult 是必要的，因为：
+        // 1. 这是DDNS合约中的标准DTO，没有对应的接口
+        // 2. 该类主要用于数据传输，Mock主要为了避免依赖外部数据
+        // 3. 测试重点是事件监听器逻辑而非DTO的具体实现
         $resolveResult2 = $this->createMock(ExpectResolveResult::class);
 
         $this->attributeProcessor
             ->expects($this->once())
             ->method('hasAnyDDNSAttribute')
             ->with($entity)
-            ->willReturn(true);
+            ->willReturn(true)
+        ;
 
         $this->attributeProcessor
             ->expects($this->once())
             ->method('extractResolveResults')
             ->with($entity)
-            ->willReturn([$resolveResult1, $resolveResult2]);
+            ->willReturn([$resolveResult1, $resolveResult2])
+        ;
 
         $this->ddnsUpdateService
             ->expects($this->exactly(2))
             ->method('updateDNS')
-            ->willReturnCallback(function (ExpectResolveResult $result) use ($resolveResult1, $resolveResult2) {
+            ->willReturnCallback(function ($result) use ($resolveResult1, $resolveResult2): void {
                 $this->assertContains($result, [$resolveResult1, $resolveResult2]);
-            });
+            })
+        ;
 
-        $event = new PostPersistEventArgs($entity, $this->entityManager);
+        $event = new PostPersistEventArgs($entity, $this->createMock(EntityManagerInterface::class));
 
         $this->listener->postPersist($event);
     }

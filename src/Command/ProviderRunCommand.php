@@ -6,21 +6,27 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 use Tourze\DDNSContracts\DNSProviderInterface;
-use Tourze\DDNSContracts\ExpectResolveResult;
+use Tourze\DDNSContracts\DTO\ExpectResolveResult;
 use Tourze\DDNSContracts\IPResolverInterface;
 use Tourze\Symfony\CronJob\Attribute\AsCronTask;
 
 #[AsCronTask(expression: '* * * * *')]
 #[AsCommand(name: self::NAME, description: '运行DDNS提供商更新任务')]
+#[Autoconfigure(public: true)]
 class ProviderRunCommand extends Command
 {
     public const NAME = 'ddns:provider:run';
 
+    /**
+     * @param iterable<IPResolverInterface>  $ipResolvers
+     * @param iterable<DNSProviderInterface> $dnsProviders
+     */
     public function __construct(
-        #[TaggedIterator(tag: IPResolverInterface::TAG_NAME)] private readonly iterable  $ipResolvers,
-        #[TaggedIterator(tag: DNSProviderInterface::TAG_NAME)] private readonly iterable $dnsProviders,
+        #[AutowireIterator(tag: IPResolverInterface::TAG_NAME)] private readonly iterable $ipResolvers,
+        #[AutowireIterator(tag: DNSProviderInterface::TAG_NAME)] private readonly iterable $dnsProviders,
     ) {
         parent::__construct();
     }

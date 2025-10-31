@@ -3,9 +3,14 @@
 namespace DDNSBundle\Tests\Attribute;
 
 use DDNSBundle\Attribute\DDNSDomain;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-class DDNSDomainTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(DDNSDomain::class)]
+final class DDNSDomainTest extends TestCase
 {
     /**
      * 测试DDNSDomain注解的基本功能
